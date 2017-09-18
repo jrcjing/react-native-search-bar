@@ -103,6 +103,14 @@ RCT_CUSTOM_VIEW_PROPERTY(textColor, UIColor, RNSearchBar)
     }
 }
 
+RCT_CUSTOM_VIEW_PROPERTY(searchImg, NSString, RNSearchBar)
+{
+    if ([RCTConvert NSString:json]) {
+        UIImage *image = [[UIImage imageWithContentsOfFile:json] resizableImageWithCapInsets:UIEdgeInsetsMake(0, 0, 0, 0) resizingMode:UIImageResizingModeStretch];
+        [view setImage:image forSearchBarIcon:UISearchBarIconSearch state:UIControlStateNormal];
+    }
+}
+
 - (NSDictionary *)constantsToExport
 {
   return @{
