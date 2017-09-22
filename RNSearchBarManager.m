@@ -103,10 +103,28 @@ RCT_CUSTOM_VIEW_PROPERTY(textColor, UIColor, RNSearchBar)
     }
 }
 
-RCT_CUSTOM_VIEW_PROPERTY(searchImg, NSString, RNSearchBar)
+RCT_CUSTOM_VIEW_PROPERTY(searchImgInfo, NSDictionary, RNSearchBar)
 {
-    if ([RCTConvert NSString:json]) {
-        UIImage *image = [[UIImage imageWithContentsOfFile:json] resizableImageWithCapInsets:UIEdgeInsetsMake(0, 0, 0, 0) resizingMode:UIImageResizingModeStretch];
+    if ([RCTConvert NSDictionary:json]) {
+        NSString *imgPath = [json objectForKey:@"img"];
+        UIImage *image = [UIImage imageWithContentsOfFile:imgPath];
+        
+        //You should better define the size value, or the image will be draw in uncontrol size.
+        NSDictionary *sizeDic = [json objectForKey:@"size"];
+        if (sizeDic && [[json objectForKey:@"size"] objectForKey:@"width"] && [[json objectForKey:@"size"] objectForKey:@"height"]) {
+            CGSize imgSize = CGSizeMake([[[json objectForKey:@"size"] objectForKey:@"width"] floatValue], [[[json objectForKey:@"size"] objectForKey:@"width"] floatValue]);
+            CGImageRef imageRef = [image CGImage];
+            CGSize size = CGSizeMake(CGImageGetWidth(imageRef), CGImageGetHeight(imageRef));
+            CGImageRef ref = CGImageCreateWithImageInRect([image CGImage], CGRectMake(0, 0, size.width, size.height));
+            UIGraphicsBeginImageContextWithOptions(imgSize, NO, 0);
+            CGContextRef con = UIGraphicsGetCurrentContext();
+            CGContextTranslateCTM(con, 0, imgSize.height);
+            CGContextScaleCTM(con, 1.0, -1.0);
+            CGContextDrawImage(con, CGRectMake(0, 0, imgSize.width, imgSize.height), ref);
+            image = UIGraphicsGetImageFromCurrentImageContext();
+            UIGraphicsEndImageContext();
+            
+        }
         [view setImage:image forSearchBarIcon:UISearchBarIconSearch state:UIControlStateNormal];
     }
 }
